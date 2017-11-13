@@ -7,6 +7,7 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
+	"net/url"
 )
 
 type EntityDescription struct {
@@ -36,7 +37,16 @@ func (c *ApiClient) GetEntities() ([]EntityDescription, error) {
 	}
 	req.Header.Set("Authorization", "Bearer "+c.config.Token)
 
-	httpClient := http.DefaultClient
+	// httpClient := http.DefaultClient
+	httpClient := &http.Client{}
+
+	if len(c.config.ProxyURL) > 0 {
+		url, err := url.Parse(c.config.ProxyURL)
+		if err == nil {
+			httpClient.Transport = &http.Transport{Proxy: http.ProxyURL(url)}
+		}
+	}
+
 	resp, err := httpClient.Do(req)
 	if err != nil {
 		return nil, err
@@ -64,7 +74,16 @@ func (c *ApiClient) GetEntity(idOrName string) (*Entity, error) {
 	}
 	req.Header.Set("Authorization", "Bearer "+c.config.Token)
 
-	httpClient := http.DefaultClient
+	// httpClient := http.DefaultClient
+	httpClient := &http.Client{}
+
+	if len(c.config.ProxyURL) > 0 {
+		url, err := url.Parse(c.config.ProxyURL)
+		if err == nil {
+			httpClient.Transport = &http.Transport{Proxy: http.ProxyURL(url)}
+		}
+	}
+
 	resp, err := httpClient.Do(req)
 	if err != nil {
 		return nil, err
